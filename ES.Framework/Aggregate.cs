@@ -25,7 +25,14 @@ public abstract class Aggregate {
         events.Add(@event);
     }
 
+    /// <summary>
+    /// Called when an event is applied. The aggregate implements the required changes to the current state dictated by the event
+    /// </summary>
+    /// <param name="event"></param>
     protected abstract void When(object @event);
 
+    /// <summary>
+    /// Ensures the entity is in a valid state.
+    /// </summary>
     protected abstract void EnsureValidState();
 }

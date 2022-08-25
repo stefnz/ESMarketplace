@@ -19,7 +19,7 @@ public class ClassifiedAd: Aggregate {
         EnsureValidState();
         
         // Change in state captured as an event, an immutable fact
-        Apply(new Events.ClassifiedAdCreated {
+        Apply(new ClassifiedAdEvents.ClassifiedAdCreated {
             Id = id,
             OwnerId = ownerId
         });
@@ -29,7 +29,7 @@ public class ClassifiedAd: Aggregate {
         Title = title;
         EnsureValidState();
         
-        Apply(new Events.ClassifiedAdTitleChanged {
+        Apply(new ClassifiedAdEvents.ClassifiedAdTitleChanged {
             Id = Id,
             Title = title
         });
@@ -39,7 +39,7 @@ public class ClassifiedAd: Aggregate {
         Text = text;
         EnsureValidState();
         
-        Apply(new Events.ClassifiedAdTextUpdated {
+        Apply(new ClassifiedAdEvents.ClassifiedAdTextUpdated {
             Id = Id,
             AdText = text
         });
@@ -49,7 +49,7 @@ public class ClassifiedAd: Aggregate {
         Price = price;
         EnsureValidState();
         
-        Apply(new Events.ClassifiedAdPriceUpdated {
+        Apply(new ClassifiedAdEvents.ClassifiedAdPriceUpdated {
             Id = Id,
             Price = Price.Amount
         });
@@ -60,7 +60,7 @@ public class ClassifiedAd: Aggregate {
         State = ClassifiedAdState.PendingReview;
         EnsureValidState();
         
-        Apply(new Events.ClassifiedAdSentForReview{Id = Id});
+        Apply(new ClassifiedAdEvents.ClassifiedAdSentForReview{Id = Id});
     }
 
     /// <summary>
@@ -69,21 +69,21 @@ public class ClassifiedAd: Aggregate {
     /// <param name="event"></param>
     protected override void When(object @event) {
         switch (@event) {
-            case Events.ClassifiedAdCreated e:
+            case ClassifiedAdEvents.ClassifiedAdCreated e:
                 Id = new ClassifiedAdId(e.Id);
                 OwnerId = new UserId(e.OwnerId);
                 State = ClassifiedAdState.Inactive;
                 break;
-            case Events.ClassifiedAdTitleChanged e:
+            case ClassifiedAdEvents.ClassifiedAdTitleChanged e:
                 Title = new ClassifiedAdTitle(e.Title);
                 break;
-            case Events.ClassifiedAdTextUpdated e:
+            case ClassifiedAdEvents.ClassifiedAdTextUpdated e:
                 Text = new ClassifiedAdText(e.AdText);
                 break;
-            case Events.ClassifiedAdPriceUpdated e:
+            case ClassifiedAdEvents.ClassifiedAdPriceUpdated e:
                 Price = new Price(e.Price, e.CurrencyCode);
                 break;
-            case Events.ClassifiedAdSentForReview e:
+            case ClassifiedAdEvents.ClassifiedAdSentForReview e:
                 State = ClassifiedAdState.PendingReview;
                 break;
         }

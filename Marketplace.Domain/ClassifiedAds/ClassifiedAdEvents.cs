@@ -1,6 +1,6 @@
 ﻿namespace Marketplace.Domain;
 
-public static class Events {
+public static class ClassifiedAdEvents {
     public class ClassifiedAdCreated {
         public Guid Id { get; set; }
         public Guid OwnerId { get; set; }

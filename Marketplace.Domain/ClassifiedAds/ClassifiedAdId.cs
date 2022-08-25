@@ -11,5 +11,7 @@ public record ClassifiedAdId {
         Value = value;
     }
 
+    public override string ToString() => Value.ToString();
     public static implicit operator Guid(ClassifiedAdId self) => self.Value;
+    public static implicit operator ClassifiedAdId(string value) => new ClassifiedAdId(Guid.Parse(value));
 }
