@@ -6,8 +6,11 @@ public record Price : Money {
             throw new ArgumentException("Price cannot be negative", nameof(amount));
         }
     }
-
+    
     internal Price(decimal amount, Currency currency) : base(amount, currency) { }
+
+    internal Price(decimal amount, string currencyCode) : base(amount, new Currency {CurrencyCode = currencyCode}) { }
+
     public static readonly Price Default = new(0m, Currency.Default);
 
     public new static Price FromDecimal(decimal amount, string currencyCode, ICurrencyLookup lookup) => new (amount, currencyCode, lookup);

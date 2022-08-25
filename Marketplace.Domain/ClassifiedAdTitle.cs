@@ -1,8 +1,9 @@
 ﻿namespace Marketplace.Domain; 
 
 public record ClassifiedAdTitle {
+    internal ClassifiedAdTitle(string value) => Value = value;
     public string Value { get; }
-    private ClassifiedAdTitle(string value) => Value = value;
+    
     private static void CheckValidity(string title) {
         if (title.Length > 100) {
             throw new ArgumentOutOfRangeException(nameof(title), "Title cannot be longer than 100 characters.");

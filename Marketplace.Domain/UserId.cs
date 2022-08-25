@@ -11,4 +11,6 @@ public class UserId
                 nameof(value), "User id cannot be empty");
         Value = value;
     }
+    
+    public static implicit operator Guid(UserId self) => self.Value;
 }

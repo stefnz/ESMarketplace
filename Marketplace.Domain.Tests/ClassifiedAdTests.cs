@@ -17,7 +17,7 @@ public class ClassifiedAdTests {
         classifiedAd.SetTitle(ClassifiedAdTitle.FromString("Test ad"));
         classifiedAd.UpdateText(ClassifiedAdText.FromString("Please buy my stuff"));
         classifiedAd.UpdatePrice(Price.FromDecimal(100.10m, "EUR", new FakeCurrencyLookup()));
-        classifiedAd.RequestPublish();
+        classifiedAd.SubmitAdForPublishing();
         
         Assert.Equal(ClassifiedAd.ClassifiedAdState.PendingReview, classifiedAd.State);
     }
@@ -30,7 +30,7 @@ public class ClassifiedAdTests {
         classifiedAd.UpdateText(ClassifiedAdText.FromString("Please buy my stuff"));
         classifiedAd.UpdatePrice(Price.FromDecimal(100.10m, "EUR", new FakeCurrencyLookup()));
         
-        Assert.Throws<InvalidEntityStateException>(() => classifiedAd.RequestPublish());
+        Assert.Throws<InvalidEntityStateException>(() => classifiedAd.SubmitAdForPublishing());
     }
     
     [Fact]
@@ -41,7 +41,7 @@ public class ClassifiedAdTests {
         classifiedAd.SetTitle(ClassifiedAdTitle.FromString("Test ad"));
         classifiedAd.UpdatePrice(Price.FromDecimal(100.10m, "EUR", new FakeCurrencyLookup()));
         
-        Assert.Throws<InvalidEntityStateException>(() => classifiedAd.RequestPublish());
+        Assert.Throws<InvalidEntityStateException>(() => classifiedAd.SubmitAdForPublishing());
     }
 
     [Fact]
@@ -52,7 +52,7 @@ public class ClassifiedAdTests {
         classifiedAd.SetTitle(ClassifiedAdTitle.FromString("Test ad"));
         classifiedAd.UpdateText(ClassifiedAdText.FromString("Please buy my stuff"));
         
-        Assert.Throws<InvalidEntityStateException>(() => classifiedAd.RequestPublish());
+        Assert.Throws<InvalidEntityStateException>(() => classifiedAd.SubmitAdForPublishing());
     }
     
     [Fact]
@@ -64,7 +64,7 @@ public class ClassifiedAdTests {
         classifiedAd.UpdateText(ClassifiedAdText.FromString("Please buy my stuff"));
         classifiedAd.UpdatePrice(Price.FromDecimal(0.0m, "EUR", new FakeCurrencyLookup()));
         
-        Assert.Throws<InvalidEntityStateException>(() => classifiedAd.RequestPublish());
+        Assert.Throws<InvalidEntityStateException>(() => classifiedAd.SubmitAdForPublishing());
     }
     
     private ClassifiedAd CreateNewAd() {
