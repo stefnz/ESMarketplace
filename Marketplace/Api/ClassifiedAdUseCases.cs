@@ -16,8 +16,12 @@ public class ClassifiedAdUseCases: IUseCases {
     public async Task Handle(object command) {
         switch (command) {
             case ClassifiedAdContract.V1.Create cmd:
-                V1_Create(cmd);
+                CreateClassifiedAd(cmd);
                 break;
+            case ClassifiedAdContract.V1.SetTitle cmd:
+                SetAdTitle(cmd);
+                break;
+            
             
             default:
                 throw new InvalidOperationException(
@@ -25,14 +29,25 @@ public class ClassifiedAdUseCases: IUseCases {
         }
     }
 
-    private async void V1_Create(ClassifiedAdContract.V1.Create command) {
-        if (await repository.Exists(command.Id.ToString()))
-            throw new InvalidOperationException($"Entity with id {command.Id} already exists");
+    private async void CreateClassifiedAd(ClassifiedAdContract.V1.Create command) {
+        if (await repository.Exists(command.Id.ToString())) {
+            throw new InvalidOperationException($"Classified Ad with id {command.Id} already exists");
+        }
 
-        var classifiedAd = new ClassifiedAd(
-            new ClassifiedAdId(command.Id),
-            new UserId(command.OwnerId));
-
+        var classifiedAd = new ClassifiedAd(new ClassifiedAdId(command.Id), new UserId(command.OwnerId));
         await repository.Save(classifiedAd);
     }
+
+    private async void SetAdTitle(ClassifiedAdContract.V1.SetTitle command) {
+        ClassifiedAd classifiedAd = await repository.Load(command.Id.ToString());
+        
+        if (classifiedAd == null) {
+            throw new InvalidOperationException($"Classified Ad with id {command.Id} cannot be found");
+        }
+        
+        classifiedAd.SetTitle(ClassifiedAdTitle.FromString(command.Title));
+        await repository.Save(classifiedAd);
+    }
+
+
 }

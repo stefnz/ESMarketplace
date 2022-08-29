@@ -15,4 +15,8 @@
       <ProjectReference Include="..\Marketplace.Domain\Marketplace.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="Api\CreateClassifiedAdHandler.cs" />
+    </ItemGroup>
+
 </Project>
