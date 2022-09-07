@@ -13,11 +13,6 @@ public class ClassifiedAd: Aggregate {
 
 
     public ClassifiedAd(ClassifiedAdId id, UserId ownerId) {
-        Id = id;
-        OwnerId = ownerId;
-        State = ClassifiedAdState.Inactive;
-        EnsureValidState();
-        
         // Change in state captured as an event, an immutable fact
         Apply(new ClassifiedAdEvents.ClassifiedAdCreated {
             Id = id,
@@ -26,9 +21,6 @@ public class ClassifiedAd: Aggregate {
     }
 
     public void SetTitle(ClassifiedAdTitle title) {
-        Title = title;
-        EnsureValidState();
-        
         Apply(new ClassifiedAdEvents.ClassifiedAdTitleChanged {
             Id = Id,
             Title = title
@@ -36,9 +28,6 @@ public class ClassifiedAd: Aggregate {
     }
 
     public void UpdateText(ClassifiedAdText text) {
-        Text = text;
-        EnsureValidState();
-        
         Apply(new ClassifiedAdEvents.ClassifiedAdTextUpdated {
             Id = Id,
             AdText = text
@@ -46,20 +35,14 @@ public class ClassifiedAd: Aggregate {
     }
 
     public void UpdatePrice(Price price) {
-        Price = price;
-        EnsureValidState();
-        
         Apply(new ClassifiedAdEvents.ClassifiedAdPriceUpdated {
             Id = Id,
-            Price = Price.Amount
+            Price = price.Amount,
+            CurrencyCode = price.Currency.CurrencyCode
         });
     }
 
-
     public void SubmitAdForPublishing() {
-        State = ClassifiedAdState.PendingReview;
-        EnsureValidState();
-        
         Apply(new ClassifiedAdEvents.ClassifiedAdSentForReview{Id = Id});
     }
 
@@ -83,7 +66,7 @@ public class ClassifiedAd: Aggregate {
             case ClassifiedAdEvents.ClassifiedAdPriceUpdated e:
                 Price = new Price(e.Price, e.CurrencyCode);
                 break;
-            case ClassifiedAdEvents.ClassifiedAdSentForReview e:
+            case ClassifiedAdEvents.ClassifiedAdSentForReview _:
                 State = ClassifiedAdState.PendingReview;
                 break;
         }

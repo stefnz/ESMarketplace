@@ -1,28 +1,32 @@
 ﻿namespace Marketplace.Domain;
 
+
+public interface IClassifiedAdEvent {
+    Guid Id { get; }
+}
 public static class ClassifiedAdEvents {
-    public class ClassifiedAdCreated {
+    public class ClassifiedAdCreated: IClassifiedAdEvent {
         public Guid Id { get; set; }
         public Guid OwnerId { get; set; }
     }
 
-    public class ClassifiedAdTitleChanged {
+    public class ClassifiedAdTitleChanged: IClassifiedAdEvent {
         public Guid Id { get; set; }
         public string Title { get; set; }
     }
 
-    public class ClassifiedAdTextUpdated {
+    public class ClassifiedAdTextUpdated: IClassifiedAdEvent {
         public Guid Id { get; set; }
         public string AdText { get; set; }
     }
 
-    public class ClassifiedAdPriceUpdated {
+    public class ClassifiedAdPriceUpdated: IClassifiedAdEvent {
         public Guid Id { get; set; }
         public decimal Price { get; set; }
         public string CurrencyCode { get; set; }
     }
 
-    public class ClassifiedAdSentForReview {
+    public class ClassifiedAdSentForReview: IClassifiedAdEvent {
         public Guid Id { get; set; }
     }
 }
