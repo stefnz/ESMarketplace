@@ -1,6 +1,8 @@
-﻿namespace Marketplace.Domain;
+﻿using ES.Framework;
 
-public record ClassifiedAdId {
+namespace Marketplace.Domain;
+
+public record ClassifiedAdId: IAggregateId {
     public Guid Value { get; }
 
     public ClassifiedAdId(Guid value) {

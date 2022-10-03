@@ -1,8 +1,12 @@
+using ES.Framework;
 using Marketplace;
 using Marketplace.Api;
 using Marketplace.Domain;
-
+using Marketplace.Domain.UserProfiles;
+using Marketplace.Infrastructure;
+using Marketplace.UserProfiles;
 using Microsoft.OpenApi.Models;
+using Raven.Client.Documents;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,10 +18,31 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
     options.SwaggerDoc("v1", new OpenApiInfo {Title = "ClassifiedAds", Version = "v1"}));
 
+// Configure RavenDb
+var store = new DocumentStore() {
+    Urls = new []{"http://localhost:8080"},
+    Database = "Marketplace",
+    Conventions = {
+        FindIdentityProperty = memberInfo => memberInfo.Name == "DbId"
+    }
+};
+
+store.Initialize();
+
+var checkForProfanityClient = new ProfanityCheckingProxy();
 builder.Services.AddSingleton<ICurrencyLookup, FixedCurrencyLookup>();
-builder.Services.AddSingleton<ClassifiedAdUseCases>();
-//builder.Services.AddSingleton<IAggregateStore>(RavenDbAggregateStore());
-//builder.Services.AddScoped<ICommandHandler<ClassifiedAdContract.V1.Create>, CreateClassifiedAdHandler>();
+builder.Services.AddScoped(_ => store.OpenAsyncSession());
+builder.Services.AddScoped<IUnitOfWork, RavenDbUnitOfWork>();
+builder.Services.AddScoped<IClassifiedAdRepository, ClassifiedAdRepository>();
+builder.Services.AddScoped<ClassifiedAdUseCases>();
+
+builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
+builder.Services.AddScoped(c => new UserProfileUseCases(
+    c.GetService<IUserProfileRepository>(),
+    c.GetService<IUnitOfWork>(),
+    text => checkForProfanityClient.CheckForProfanity(text).GetAwaiter().GetResult()
+    ));
+
 
 var app = builder.Build();
 

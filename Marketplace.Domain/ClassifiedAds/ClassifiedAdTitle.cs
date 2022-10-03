@@ -1,6 +1,8 @@
 ﻿namespace Marketplace.Domain; 
 
 public record ClassifiedAdTitle {
+    // Required to support serialization for RavenDb
+    protected ClassifiedAdTitle() { }
     internal ClassifiedAdTitle(string value) => Value = value;
     public string Value { get; }
     

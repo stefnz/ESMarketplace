@@ -5,7 +5,9 @@ namespace ES.Framework;
 /// <summary>
 /// An aggregate from Domain Driven Design, a domain concept with a unique identity and lifetime.
 /// </summary>
-public abstract class Aggregate {
+public abstract class Aggregate<TId>: IHandleEvents where TId: IAggregateId {
+    public TId Id { get; protected set; }
+    
     private readonly List<object> events;
     
     // List of events that have occurred in this entities history
@@ -35,4 +37,8 @@ public abstract class Aggregate {
     /// Ensures the entity is in a valid state.
     /// </summary>
     protected abstract void EnsureValidState();
+
+    protected void ApplyToEntity(IHandleEvents entity, object @event) => entity?.Handle(@event);
+
+    void IHandleEvents.Handle(object @event) => When(@event);
 }

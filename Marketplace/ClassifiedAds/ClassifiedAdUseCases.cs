@@ -9,10 +9,12 @@ namespace Marketplace.Api;
 /// </summary>
 public class ClassifiedAdUseCases: IUseCases {
     private readonly IClassifiedAdRepository repository;
+    private readonly IUnitOfWork unitOfWork;
     private readonly ICurrencyLookup currencyLookup;
     
-    public ClassifiedAdUseCases(IClassifiedAdRepository repository, ICurrencyLookup currencyLookup) {
+    public ClassifiedAdUseCases(IClassifiedAdRepository repository, IUnitOfWork unitOfWork, ICurrencyLookup currencyLookup) {
         this.repository = repository;
+        this.unitOfWork = unitOfWork;
         this.currencyLookup = currencyLookup;
     }
 
@@ -44,7 +46,8 @@ public class ClassifiedAdUseCases: IUseCases {
         }
 
         var classifiedAd = new ClassifiedAd(new ClassifiedAdId(command.Id), new UserId(command.OwnerId));
-        await repository.Save(classifiedAd);
+        await repository.Add(classifiedAd);
+        await unitOfWork.Commit();
     }
 
     private async Task SetAdTitle(ClassifiedAdContract.V1.SetTitle command) {
@@ -55,7 +58,7 @@ public class ClassifiedAdUseCases: IUseCases {
         }
         
         classifiedAd.SetTitle(ClassifiedAdTitle.FromString(command.Title));
-        await repository.Save(classifiedAd);
+        await unitOfWork.Commit();
     }
 
     private async Task UpdateText(ClassifiedAdContract.V1.UpdateText command) {
@@ -65,7 +68,7 @@ public class ClassifiedAdUseCases: IUseCases {
         }
 
         classifiedAd.UpdateText(ClassifiedAdText.FromString(command.Text));
-        await repository.Save(classifiedAd);
+        await unitOfWork.Commit();
     }
 
     private async Task UpdatePrice(ClassifiedAdContract.V1.UpdatePrice command) {
@@ -75,7 +78,7 @@ public class ClassifiedAdUseCases: IUseCases {
         }
 
         classifiedAd.UpdatePrice(Price.FromDecimal(command.Price, command.Currency, currencyLookup));
-        await repository.Save(classifiedAd);        
+        await unitOfWork.Commit();        
     }
 
     private async Task SubmitAdForPublishing(ClassifiedAdContract.V1.RequestPublish command) {
@@ -85,8 +88,8 @@ public class ClassifiedAdUseCases: IUseCases {
         }
 
         classifiedAd.SubmitAdForPublishing();
-        await repository.Save(classifiedAd);
+        await unitOfWork.Commit();
     }
     
-    // TODO: possible to simplify command handlers?
+    // TODO: possible to simplify command handlers? Use an Action to capture the change to the classified ad? 
 }

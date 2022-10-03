@@ -17,6 +17,7 @@ public class ClassifiedAdTests {
         classifiedAd.SetTitle(ClassifiedAdTitle.FromString("Test ad"));
         classifiedAd.UpdateText(ClassifiedAdText.FromString("Please buy my stuff"));
         classifiedAd.UpdatePrice(Price.FromDecimal(100.10m, "EUR", new FakeCurrencyLookup()));
+        classifiedAd.AddPicture(new Uri(@"https://foo.bar/qak/picture.png"), new PictureSize(600,800));
         classifiedAd.SubmitAdForPublishing();
         
         Assert.Equal(ClassifiedAd.ClassifiedAdState.PendingReview, classifiedAd.State);
