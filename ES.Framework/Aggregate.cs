@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace ES.Framework;
+﻿namespace ES.Framework;
 
 /// <summary>
 /// An aggregate from Domain Driven Design, a domain concept with a unique identity and lifetime.
@@ -18,7 +16,8 @@ public abstract class Aggregate<TId>: IHandleEvents where TId: IAggregateId {
     public void ClearChanges() => events.Clear();
 
     /// <summary>
-    /// 
+    /// Applies an event to the aggregate, mutating the current state
+    /// The event, if valid, is added to the history of events applied to the aggregate
     /// </summary>
     /// <param name="event">The event (immutable fact) to record</param>
     protected void Apply(object @event) {
