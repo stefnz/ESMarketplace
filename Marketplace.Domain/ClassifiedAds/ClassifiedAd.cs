@@ -48,6 +48,13 @@ public class ClassifiedAd : Aggregate<ClassifiedAdId> {
         Apply(new ClassifiedAdEvents.ClassifiedAdSentForReview { Id = Id });
     }
 
+    public void Publish(UserId approverUserId) {
+        Apply(new ClassifiedAdEvents.ClassifiedAdPublished {
+            Id = Id,
+            ApprovedBy = approverUserId
+        });
+    }
+
     public void AddPicture(Uri pictureUri, PictureSize size) {
         Apply(
             new ClassifiedAdEvents.PictureAddedToAClassifiedAd {
@@ -99,6 +106,10 @@ public class ClassifiedAd : Aggregate<ClassifiedAdId> {
                 break;
             case ClassifiedAdEvents.ClassifiedAdSentForReview _:
                 State = ClassifiedAdState.PendingReview;
+                break;
+            case ClassifiedAdEvents.ClassifiedAdPublished e:
+                ApprovedBy = new UserId(e.ApprovedBy);
+                State = ClassifiedAdState.Active;
                 break;
             case ClassifiedAdEvents.PictureAddedToAClassifiedAd e:
                 var picture = new Picture(Apply); // the Apply method of the aggregate root is passed to the entity

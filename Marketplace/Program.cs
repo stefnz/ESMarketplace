@@ -1,3 +1,5 @@
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using ES.Framework;
 using Marketplace;
 using Marketplace.Api;
@@ -10,6 +12,8 @@ using Raven.Client.Documents;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -18,16 +22,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
     options.SwaggerDoc("v1", new OpenApiInfo {Title = "ClassifiedAds", Version = "v1"}));
 
-// Configure RavenDb
-var store = new DocumentStore() {
-    Urls = new []{"http://localhost:8080"},
-    Database = "Marketplace",
-    Conventions = {
-        FindIdentityProperty = memberInfo => memberInfo.Name == "DbId"
-    }
-};
+/*
 
-store.Initialize();
+*/
+
 
 var checkForProfanityClient = new ProfanityCheckingProxy();
 builder.Services.AddSingleton<ICurrencyLookup, FixedCurrencyLookup>();
@@ -58,3 +56,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+

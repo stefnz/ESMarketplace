@@ -40,4 +40,18 @@ public abstract class Aggregate<TId>: IHandleEvents where TId: IAggregateId {
     protected void ApplyToEntity(IHandleEvents entity, object @event) => entity?.Handle(@event);
 
     void IHandleEvents.Handle(object @event) => When(@event);
+    
+    /// <summary>
+    /// Version number of the aggregate to facilitate optimistic locking
+    /// </summary>
+    public int Version { get; private set; } = -1;
+    
+    public void Load(IEnumerable<object> history)
+    {
+        foreach (var e in history)
+        {
+            When(e);
+            Version++;
+        }
+    }
 }
