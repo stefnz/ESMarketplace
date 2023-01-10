@@ -1,4 +1,5 @@
 ﻿using ES.Framework;
+using Marketplace.UserProfiles;
 using Microsoft.AspNetCore.Mvc;
 using ILogger = Serilog.ILogger;
 

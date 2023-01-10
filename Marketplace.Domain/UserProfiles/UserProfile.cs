@@ -9,10 +9,12 @@ public class UserProfile: Aggregate<UserId> {
         set {}
     }
 
-    public UserId Id { get; private set; }
+    public override UserId Id { get; protected set; }
     public FullName FullName { get; private set; }
     public DisplayName DisplayName { get; private set; }
     public string PhotoUrl { get; private set; }
+
+    private UserProfile() : base() { }
 
     public UserProfile(UserId id, FullName fullName, DisplayName displayName) =>
         Apply(new UserEvents.UserRegistered {
@@ -62,6 +64,4 @@ public class UserProfile: Aggregate<UserId> {
     protected override void EnsureValidState() {
         // none yet
     }
-
-    protected UserProfile() { }
 }

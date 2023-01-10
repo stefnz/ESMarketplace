@@ -69,15 +69,7 @@ public class AggregateStore: IAggregateStore {
         var page = await connection.ReadStreamEventsForwardAsync(stream, 0, MaximumAllowedStreamSliceSize, false);
         // For large numbers of events, paging would be required. The max stream slice supported is 4096, after this paging is needed.
         
-        aggregate.Load(page.Events.Select(resolvedEvent => {
-            var eventInfo =
-                JsonConvert.DeserializeObject<EventInfo>(Encoding.UTF8.GetString(resolvedEvent.Event.Metadata));
-            var dataType = Type.GetType(eventInfo.ClrType);
-            var jsonData = Encoding.UTF8.GetString(resolvedEvent.Event.Data);
-            var data = JsonConvert.DeserializeObject(jsonData, dataType);
-            
-            return data;
-        }).ToArray());
+        aggregate.Load(page.Events.Select(resolvedEvent => resolvedEvent.Deserialize()).ToArray());
 
         return aggregate;
     }

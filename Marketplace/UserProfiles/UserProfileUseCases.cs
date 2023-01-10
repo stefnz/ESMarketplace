@@ -1,67 +1,77 @@
 ﻿using ES.Framework;
 using Marketplace.Domain.ContentModeration;
 using Marketplace.Domain.UserProfiles;
-
-namespace Marketplace.UserProfiles; 
-
-public class UserProfileUseCases: IUseCases {
-
-    private readonly IUserProfileRepository userProfileRepository;
-    private readonly IUnitOfWork unitOfWork;
-    private readonly CheckForProfanity checkForProfanityAction;
-
-    public UserProfileUseCases(
-        IUserProfileRepository repository,
-        IUnitOfWork unitOfWork,
-        CheckForProfanity checkForProfanity
-    ) {
-        this.userProfileRepository = repository;
-        this.unitOfWork = unitOfWork;
-        this.checkForProfanityAction = checkForProfanity;
-    }
+using Marketplace.UserProfiles;
 
 
-    public async Task Handle(object command) {
-        switch (command) {
-            case UserProfileContract.V1.RegisterUser cmd:
-                if (await userProfileRepository.Exists(new UserId(cmd.UserId))) {
-                    throw new InvalidOperationException($"User profile with Id {cmd.UserId} already exists.");
-                }
+namespace Marketplace.UserProfiles {
+    public class UserProfileUseCases : IUseCases {
+        private readonly IAggregateStore _store;
+        private readonly CheckForProfanity _checkText;
 
-                var userProfile = new Domain.UserProfiles.UserProfile(
-                    new UserId(cmd.UserId),
-                    FullName.FromString(cmd.FullName),
-                    DisplayName.FromString(cmd.DisplayName, checkForProfanityAction));
-
-                await userProfileRepository.Add(userProfile);
-                await unitOfWork.Commit();
-                break;
-            
-            case UserProfileContract.V1.UpdateUserFullName cmd:
-                await HandleUpdate(cmd.UserId, profile => profile.UpdateFullName(FullName.FromString(cmd.FullName)));
-                break;
-
-            case UserProfileContract.V1.UpdateUserDisplayName cmd:
-                await HandleUpdate(cmd.UserId,
-                    profile => profile.UpdateDisplayName(DisplayName.FromString(cmd.DisplayName, checkForProfanityAction)));
-                break;
-
-            case UserProfileContract.V1.UpdateUserProfilePhoto cmd:
-                await HandleUpdate(cmd.UserId, profile => profile.UpdateProfilePhoto(new Uri(cmd.ProfilePhotoUrl)));
-                break;
-            
-            default:
-                throw new InvalidOperationException($"Command type {command.GetType().FullName} is unknown.");
+        public UserProfileUseCases(IAggregateStore store, CheckForProfanity checkText) {
+            _store = store;
+            _checkText = checkText;
         }
-    }
 
-    private async Task HandleUpdate(Guid userProfileId, Action<UserProfile> operation) {
-        var userProfile = await userProfileRepository.Load(new UserId(userProfileId));
+        public Task Handle(object command) =>
+            command switch {
+                UserProfileContract.V1.RegisterUser cmd =>
+                    HandleCreate(cmd),
+                UserProfileContract.V1.UpdateUserFullName cmd =>
+                    HandleUpdate(
+                        cmd.UserId,
+                        profile => profile.UpdateFullName(
+                            FullName.FromString(cmd.FullName)
+                        )
+                    ),
+                UserProfileContract.V1.UpdateUserDisplayName cmd =>
+                    HandleUpdate(
+                        cmd.UserId,
+                        profile => profile.UpdateDisplayName(
+                            DisplayName.FromString(
+                                cmd.DisplayName,
+                                _checkText
+                            )
+                        )
+                    ),
+                UserProfileContract.V1.UpdateUserProfilePhoto cmd =>
+                    HandleUpdate(
+                        cmd.UserId,
+                        profile => profile
+                            .UpdateProfilePhoto(
+                                new Uri(cmd.ProfilePhotoUrl)
+                            )
+                    ),
+                _ => Task.CompletedTask
+            };
 
-        if (userProfile == null) {
-            throw new InvalidOperationException($"User profile with Id {userProfileId} cannot be found.");
+        private async Task HandleCreate(UserProfileContract.V1.RegisterUser cmd) {
+            if (await _store
+                    .Exists<Domain.UserProfiles.UserProfile, UserId>(
+                        new UserId(cmd.UserId)
+                    ))
+                throw new InvalidOperationException(
+                    $"Entity with id {cmd.UserId} already exists"
+                );
+
+            var userProfile = new Domain.UserProfiles.UserProfile(
+                new UserId(cmd.UserId),
+                FullName.FromString(cmd.FullName),
+                DisplayName.FromString(cmd.DisplayName, _checkText)
+            );
+
+            await _store
+                .Save<Domain.UserProfiles.UserProfile, UserId>(
+                    userProfile
+                );
         }
-        operation(userProfile);
-        await unitOfWork.Commit();
+
+        private Task HandleUpdate(Guid id, Action<Domain.UserProfiles.UserProfile> update) =>
+            this.HandleUpdate(
+                _store,
+                new UserId(id),
+                update
+            );
     }
 }

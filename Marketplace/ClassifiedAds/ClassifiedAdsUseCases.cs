@@ -5,12 +5,12 @@ using Marketplace.Domain;
 namespace Marketplace.ClassifiedAds;
 
 public class ClassifiedAdsUseCases : IUseCases {
-    private readonly ICurrencyLookup _currencyLookup;
-    private readonly IAggregateStore _store;
+    private readonly ICurrencyLookup currencyLookup;
+    private readonly IAggregateStore store;
 
     public ClassifiedAdsUseCases(IAggregateStore store, ICurrencyLookup currencyLookup) {
-        _currencyLookup = currencyLookup;
-        _store = store;
+        this.currencyLookup = currencyLookup;
+        this.store = store;
     }
 
     public Task Handle(object command) =>
@@ -20,53 +20,47 @@ public class ClassifiedAdsUseCases : IUseCases {
             ClassifiedAdContract.V1.SetTitle cmd =>
                 HandleUpdate(
                     cmd.Id,
-                    c => c.SetTitle(
-                        ClassifiedAdTitle
-                            .FromString(cmd.Title)
-                    )
+                    ad => ad.SetTitle(ClassifiedAdTitle.FromString(cmd.Title))
                 ),
             ClassifiedAdContract.V1.UpdateText cmd =>
                 HandleUpdate(
                     cmd.Id,
-                    c => c.UpdateText(
-                        ClassifiedAdText
-                            .FromString(cmd.Text)
-                    )
+                    ad => ad.UpdateText(ClassifiedAdText.FromString(cmd.Text))
                 ),
             ClassifiedAdContract.V1.UpdatePrice cmd =>
                 HandleUpdate(
                     cmd.Id,
-                    c => c.UpdatePrice(
+                    ad => ad.UpdatePrice(
                         Price.FromDecimal(
                             cmd.Price,
                             cmd.Currency,
-                            _currencyLookup
+                            currencyLookup
                         )
                     )
                 ),
             ClassifiedAdContract.V1.RequestPublish cmd =>
                 HandleUpdate(
                     cmd.Id,
-                    c => c.SubmitAdForPublishing()
+                    ad => ad.SubmitAdForPublishing()
                 ),
             ClassifiedAdContract.V1.Publish cmd =>
                 HandleUpdate(
                     cmd.Id,
-                    c => c.Publish(new UserId(cmd.ApprovedBy))
+                    ad => ad.Publish(new UserId(cmd.ApprovedBy))
                 ),
             _ => Task.CompletedTask
         };
 
     private async Task HandleCreate(ClassifiedAdContract.V1.Create cmd) {
-        if (await _store.Exists<Domain.ClassifiedAd, ClassifiedAdId>(new ClassifiedAdId(cmd.Id))) {
+        if (await store.Exists<Domain.ClassifiedAd, ClassifiedAdId>(new ClassifiedAdId(cmd.Id))) {
             throw new InvalidOperationException($"Entity with id {cmd.Id} already exists");
         }
 
         var classifiedAd = new Domain.ClassifiedAd(new ClassifiedAdId(cmd.Id), new UserId(cmd.OwnerId));
         
-        await _store.Save<Domain.ClassifiedAd, ClassifiedAdId>(classifiedAd);
+        await store.Save<Domain.ClassifiedAd, ClassifiedAdId>(classifiedAd);
     }
 
     private Task HandleUpdate(Guid id, Action<Domain.ClassifiedAd> update)
-        => this.HandleUpdate(_store, new ClassifiedAdId(id), update);
+        => this.HandleUpdate(store, new ClassifiedAdId(id), update);
 }

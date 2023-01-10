@@ -1,59 +1,41 @@
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using ES.Framework;
-using Marketplace;
-using Marketplace.Api;
-using Marketplace.Domain;
-using Marketplace.Domain.UserProfiles;
-using Marketplace.Infrastructure;
-using Marketplace.UserProfiles;
-using Microsoft.OpenApi.Models;
-using Raven.Client.Documents;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Serilog;
+using static System.Environment;
+using static System.Reflection.Assembly;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace Marketplace
+{
+    public static class Program
+    {
+        static Program() =>
+            CurrentDirectory = Path.GetDirectoryName(GetEntryAssembly().Location);
 
+        public static void Main(string[] args)
+        {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .CreateLogger();
+            
+            var configuration = BuildConfiguration(args);
 
+            ConfigureWebHost(configuration).Build().Run();
+        }
 
-// Add services to the container.
+        private static IConfiguration BuildConfiguration(string[] args)
+            => new ConfigurationBuilder()
+                .SetBasePath(CurrentDirectory)
+                .AddJsonFile("appsettings.json", false, false)
+                .Build();
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-    options.SwaggerDoc("v1", new OpenApiInfo {Title = "ClassifiedAds", Version = "v1"}));
-
-/*
-
-*/
-
-
-var checkForProfanityClient = new ProfanityCheckingProxy();
-builder.Services.AddSingleton<ICurrencyLookup, FixedCurrencyLookup>();
-builder.Services.AddScoped(_ => store.OpenAsyncSession());
-builder.Services.AddScoped<IUnitOfWork, RavenDbUnitOfWork>();
-builder.Services.AddScoped<IClassifiedAdRepository, ClassifiedAdRepository>();
-builder.Services.AddScoped<ClassifiedAdUseCases>();
-
-builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
-builder.Services.AddScoped(c => new UserProfileUseCases(
-    c.GetService<IUserProfileRepository>(),
-    c.GetService<IUnitOfWork>(),
-    text => checkForProfanityClient.CheckForProfanity(text).GetAwaiter().GetResult()
-    ));
-
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment()) {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    app.UseDeveloperExceptionPage();
+        private static IWebHostBuilder ConfigureWebHost(IConfiguration configuration)
+            => new WebHostBuilder()
+                .UseStartup<StartupWithEventStore>()
+                .UseConfiguration(configuration)
+                .UseContentRoot(CurrentDirectory)
+                .UseKestrel();
+    }
 }
-
-app.UseHttpsRedirection();
-app.UseAuthorization();
-app.MapControllers();
-
-app.Run();
 

@@ -3,7 +3,7 @@
 namespace Marketplace.Domain;
 
 public class ClassifiedAd : Aggregate<ClassifiedAdId> {
-    public ClassifiedAdId Id { get; private set; }
+    public override ClassifiedAdId Id { get; protected set; }
     public UserId OwnerId { get; private set; }
     public ClassifiedAdTitle Title { get; private set; }
     public ClassifiedAdText Text { get; private set; }
@@ -12,7 +12,8 @@ public class ClassifiedAd : Aggregate<ClassifiedAdId> {
     public UserId ApprovedBy { get; private set; }
     public List<Picture> Pictures { get; }
 
-    
+    private ClassifiedAd() : base() { } // This be accessed via reflection but the constructor on the base class cannot (directly)
+
     public ClassifiedAd(ClassifiedAdId id, UserId ownerId) {
         Pictures = new List<Picture>();
         // Change in state captured as an event, an immutable fact
@@ -144,13 +145,6 @@ public class ClassifiedAd : Aggregate<ClassifiedAdId> {
             // TODO: improve error capture and reporting
             throw new InvalidEntityStateException(this, $"Classified Ad validation failed in state {State}");
         }
-    }
-    
-    //Required by RavenDb to discover the Id
-    private string DbId
-    {
-        get => $"ClassifiedAd/{Id.Value}";
-        set {}
     }
 
     public enum ClassifiedAdState {

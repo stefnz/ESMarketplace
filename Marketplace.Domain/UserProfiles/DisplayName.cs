@@ -11,7 +11,7 @@ public record DisplayName {
             throw new ArgumentNullException(nameof(FullName));
         }
 
-        if (hasProfanity(displayName)) {
+        if (hasProfanity(displayName).GetAwaiter().GetResult()) {
             throw new ProfanityFoundException(displayName);
         }
 

@@ -1,3 +1,3 @@
 ﻿namespace Marketplace.Domain.ContentModeration; 
 
-public delegate bool CheckForProfanity(string text);
+public delegate Task<bool> CheckForProfanity(string text);

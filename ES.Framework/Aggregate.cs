@@ -3,8 +3,8 @@
 /// <summary>
 /// An aggregate from Domain Driven Design, a domain concept with a unique identity and lifetime.
 /// </summary>
-public abstract class Aggregate<TId>: IHandleEvents where TId: IAggregateId {
-    public TId Id { get; protected set; }
+public abstract class Aggregate<TId>: IHandleEvents /* where TId: IAggregateId */ {
+    public virtual TId Id { get; protected set; }
     
     private readonly List<object> events;
     

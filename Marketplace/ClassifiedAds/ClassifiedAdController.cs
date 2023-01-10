@@ -1,4 +1,5 @@
-﻿using Marketplace.Contracts;
+﻿using Marketplace.ClassifiedAds;
+using Marketplace.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 
@@ -10,12 +11,12 @@ namespace Marketplace.Api;
 /// </summary>
 [Route("/ad")]
 public class ClassifiedAdController: Controller {
-    private readonly ClassifiedAdUseCases useCases;
+    private readonly ClassifiedAdsUseCases useCases;
 
     private static Serilog.ILogger Log = Serilog.Log.ForContext<ClassifiedAdController>();
     //private readonly ICommandHandler<ClassifiedAdContract.V1.Create> createAdHandler;
 
-    public ClassifiedAdController(ClassifiedAdUseCases useCases) => this.useCases = useCases;
+    public ClassifiedAdController(ClassifiedAdsUseCases useCases) => this.useCases = useCases;
 
     [HttpPost]
     public Task<IActionResult> Post(ClassifiedAdContract.V1.Create request) => HandleRequest(request, useCases.Handle);
