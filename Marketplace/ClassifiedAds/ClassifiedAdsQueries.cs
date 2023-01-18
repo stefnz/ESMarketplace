@@ -1,9 +1,10 @@
-﻿namespace Marketplace.ClassifiedAds; 
+﻿using Marketplace.Projections;
+using Raven.Client.Documents.Session;
+
+namespace Marketplace.ClassifiedAds; 
 
 public static class ClassifiedAdsQueries {
-    public static ReadModels.ClassifiedAdDetails Query(
-        this IEnumerable<ReadModels.ClassifiedAdDetails> items,
-        QueryModels.GetPublicClassifiedAd query)
-        => items.FirstOrDefault(adDetails => adDetails.ClassifiedAdId == query.ClassifiedAdId);
+    public static Task<ReadModels.ClassifiedAdDetails> Query(this IAsyncDocumentSession session, QueryModels.GetPublicClassifiedAd query)
+        => session.LoadAsync<ReadModels.ClassifiedAdDetails>(query.ClassifiedAdId.ToString());
 }
 

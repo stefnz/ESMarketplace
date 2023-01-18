@@ -19,7 +19,7 @@ public static class RequestHandler {
         }
     }
 
-    public static IActionResult HandleQuery<TModel>(Func<TModel> query, ILogger log)
+    /*public static IActionResult HandleQuery<TModel>(Func<TModel> query, ILogger log)
     {
         try
         {
@@ -33,7 +33,7 @@ public static class RequestHandler {
                 stackTrace = e.StackTrace
             });
         }
-    }
+    }*/
     
     public static async Task<IActionResult> HandleQuery<TModel>(Func<Task<TModel>> query, ILogger log) {
         try {

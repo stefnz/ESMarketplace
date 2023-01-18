@@ -4,20 +4,20 @@ namespace Marketplace.Infrastructure;
 
 public class EventStoreHostedService: IHostedService {
     private readonly IEventStoreConnection connection;
-    private readonly ClassifiedAdEventsSubscription subscription;
+    private readonly ProjectionsManager projectionsManager;
 
-    public EventStoreHostedService(IEventStoreConnection connection, ClassifiedAdEventsSubscription subscription) {
+    public EventStoreHostedService(IEventStoreConnection connection, ProjectionsManager manager) {
         this.connection = connection;
-        this.subscription = subscription;
+        this.projectionsManager = manager;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken) {
         await connection.ConnectAsync();
-        subscription.Start();
+        await projectionsManager.Start();
     }
 
     public Task StopAsync(CancellationToken cancellationToken) {
-        subscription.Stop();
+        projectionsManager.Stop();
         connection.Close();
         return Task.CompletedTask;
     }

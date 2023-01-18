@@ -1,19 +1,19 @@
 ﻿using ES.Framework;
 using Marketplace.ClassifiedAds;
-
 using Microsoft.AspNetCore.Mvc;
+using Raven.Client.Documents.Session;
 using Serilog;
 
 namespace Marketplace.ClassifiedAd {
     [Route("/ad")]
     public class ClassifiedAdsQueryApi : Controller {
         private static Serilog.ILogger log = Log.ForContext<ClassifiedAdsQueryApi>();
-        private readonly IEnumerable<ReadModels.ClassifiedAdDetails> items;
+        private readonly IAsyncDocumentSession session;
         
-        public ClassifiedAdsQueryApi(IEnumerable <ReadModels.ClassifiedAdDetails> items) => this.items = items;
+        public ClassifiedAdsQueryApi(IAsyncDocumentSession session) => this.session = session;
         
         [HttpGet]
-        public IActionResult Get(QueryModels.GetPublicClassifiedAd request) 
-            => RequestHandler.HandleQuery(() => items.Query(request), log);
+        public Task<IActionResult> Get(QueryModels.GetPublicClassifiedAd request) 
+            => RequestHandler.HandleQuery(() => session.Query(request), log); 
     }
 }

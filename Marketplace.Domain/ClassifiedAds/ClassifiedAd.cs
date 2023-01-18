@@ -52,7 +52,8 @@ public class ClassifiedAd : Aggregate<ClassifiedAdId> {
     public void Publish(UserId approverUserId) {
         Apply(new ClassifiedAdEvents.ClassifiedAdPublished {
             Id = Id,
-            ApprovedBy = approverUserId
+            ApprovedBy = approverUserId,
+            OwnerId = OwnerId
         });
     }
 

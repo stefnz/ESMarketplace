@@ -1,22 +1,20 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Threading.Tasks;
+﻿
+using Marketplace.Projections;
 using Raven.Client.Documents;
 using Raven.Client.Documents.Linq;
 using Raven.Client.Documents.Queries;
 using Raven.Client.Documents.Session;
-using static Marketplace.ClassifiedAds.ReadModels;
+
 using static Marketplace.Domain.ClassifiedAd;
 
 namespace Marketplace.ClassifiedAds {
     public static class Queries {
-        public static Task<List<PublicClassifiedAdListItem>> Query(this IAsyncDocumentSession session, QueryModels.GetPublishedClassifiedAds query)
+        public static Task<List<ReadModels.PublicClassifiedAdListItem>> Query(this IAsyncDocumentSession session, QueryModels.GetPublishedClassifiedAds query)
             => session.Query<Domain.ClassifiedAd>()
                 .Where(x => x.State == ClassifiedAdState.Active)
                 .Select(x =>
-                    new PublicClassifiedAdListItem {
-                        ClassifiedAdId = x.Id.Value,
+                    new ReadModels.PublicClassifiedAdListItem {
+                        Id = x.Id.Value.ToString(),
                         Price = x.Price.Amount,
                         Title = x.Title.Value,
                         CurrencyCode = x.Price.Currency.CurrencyCode
@@ -24,13 +22,13 @@ namespace Marketplace.ClassifiedAds {
                 )
                 .PagedList(query.Page, query.PageSize);
 
-        public static Task<List<PublicClassifiedAdListItem>> Query(this IAsyncDocumentSession session, QueryModels.GetOwnersClassifiedAd query)
+        public static Task<List<ReadModels.PublicClassifiedAdListItem>> Query(this IAsyncDocumentSession session, QueryModels.GetOwnersClassifiedAd query)
             => session.Query<Domain.ClassifiedAd>()
                 .Where(x => x.OwnerId.Value == query.OwnerId)
                 .Select(
                     x =>
-                        new PublicClassifiedAdListItem {
-                            ClassifiedAdId = x.Id.Value,
+                        new ReadModels.PublicClassifiedAdListItem {
+                            Id = x.Id.Value.ToString(),
                             Price = x.Price.Amount,
                             Title = x.Title.Value,
                             CurrencyCode = x.Price.Currency.CurrencyCode
@@ -38,15 +36,15 @@ namespace Marketplace.ClassifiedAds {
                 )
                 .PagedList(query.Page, query.PageSize);
 
-        public static Task<ClassifiedAdDetails> Query(this IAsyncDocumentSession session, QueryModels.GetPublicClassifiedAd query)
+        public static Task<ReadModels.ClassifiedAdDetails> Query(this IAsyncDocumentSession session, QueryModels.GetPublicClassifiedAd query)
             => (from ad in session.Query<Domain.ClassifiedAd>()
                 where ad.Id.Value == query.ClassifiedAdId
                 let user = RavenQuery
                     .Load<Domain.UserProfiles.UserProfile>(
                         "UserProfile/" + ad.OwnerId.Value
                     )
-                select new ClassifiedAdDetails {
-                    ClassifiedAdId = ad.Id.Value,
+                select new ReadModels.ClassifiedAdDetails {
+                    Id = ad.Id.Value.ToString(),
                     Title = ad.Title.Value,
                     Description = ad.Text.Value,
                     Price = ad.Price.Amount,

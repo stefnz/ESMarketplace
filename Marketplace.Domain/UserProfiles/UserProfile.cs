@@ -17,26 +17,26 @@ public class UserProfile: Aggregate<UserId> {
     private UserProfile() : base() { }
 
     public UserProfile(UserId id, FullName fullName, DisplayName displayName) =>
-        Apply(new UserEvents.UserRegistered {
+        Apply(new UserProfileEvents.UserRegistered {
             UserId = id,
             DisplayName = displayName,
             FullName = fullName
         });
 
     public void UpdateFullName(FullName fullName) =>
-        Apply(new UserEvents.UserFullNameUpdated {
+        Apply(new UserProfileEvents.UserFullnameUpdated {
             UserId = Id,
-            FullName = fullName
+            Fullname = fullName
         });
 
     public void UpdateDisplayName(DisplayName displayName) =>
-        Apply(new UserEvents.UserDisplayNameUpdated {
+        Apply(new UserProfileEvents.UserDisplayNameUpdated {
             UserId = Id,
             DisplayName = displayName
         });
 
     public void UpdateProfilePhoto(Uri profilePhotoUri) =>
-        Apply(new UserEvents.ProfilePhotoUploaded {
+        Apply(new UserProfileEvents.ProfilePhotoUploaded {
             UserId = Id,
             PhotoUrl = profilePhotoUri.ToString()
         });
@@ -44,18 +44,18 @@ public class UserProfile: Aggregate<UserId> {
     
     protected override void When(object @event) {
         switch (@event) {
-            case UserEvents.UserRegistered e:
+            case UserProfileEvents.UserRegistered e:
                 Id = new UserId(e.UserId);
                 FullName = new FullName(e.FullName);
                 DisplayName = new DisplayName(e.DisplayName);
                 break;
-            case UserEvents.UserFullNameUpdated e:
-                FullName = new FullName(e.FullName);
+            case UserProfileEvents.UserFullnameUpdated e:
+                FullName = new FullName(e.Fullname);
                 break;
-            case UserEvents.UserDisplayNameUpdated e:
+            case UserProfileEvents.UserDisplayNameUpdated e:
                 DisplayName = new DisplayName(e.DisplayName);
                 break;
-            case UserEvents.ProfilePhotoUploaded e:
+            case UserProfileEvents.ProfilePhotoUploaded e:
                 PhotoUrl = e.PhotoUrl;
                 break;
         }

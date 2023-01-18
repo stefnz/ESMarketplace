@@ -33,6 +33,7 @@ public static class ClassifiedAdEvents {
     public class ClassifiedAdPublished : IClassifiedAdEvent {
         public Guid Id { get; set; }
         public Guid ApprovedBy { get; set; }
+        public Guid OwnerId { get; set; }
     }
 
     public class PictureAddedToAClassifiedAd {

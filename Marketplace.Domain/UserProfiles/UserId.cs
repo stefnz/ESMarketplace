@@ -14,4 +14,6 @@ public record UserId: IAggregateId {
     }
 
     public static implicit operator Guid(UserId self) => self.Value;
+    
+    public override string ToString() => Value.ToString();
 }

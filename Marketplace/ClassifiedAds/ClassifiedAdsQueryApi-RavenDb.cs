@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using ES.Framework;
+using Marketplace.Projections;
 using Serilog;
 using Microsoft.AspNetCore.Mvc;
 using Raven.Client.Documents.Session;

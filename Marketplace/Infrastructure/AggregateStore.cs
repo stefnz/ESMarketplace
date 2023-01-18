@@ -19,8 +19,7 @@ public class AggregateStore: IAggregateStore {
     private static string GetStreamName<T, TId>(T aggregate) where T : Aggregate<TId> where TId : IAggregateId
         => $"{typeof(T).Name}-{aggregate.Id.ToString()}";
 
-    private static byte[] Serialize(object data)
-        => Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(data));
+    private static byte[] Serialize(object data) => Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(data));
 
     private class EventInfo {
         public string ClrType { get; set; }
@@ -37,15 +36,7 @@ public class AggregateStore: IAggregateStore {
             throw new ArgumentNullException(nameof(aggregate));
         }
 
-        var changes = aggregate.GetChanges()
-            .Select(@event => new EventData(
-                eventId: Guid.NewGuid(),
-                type: @event.GetType().Name,
-                isJson: true,
-                data: Serialize(@event),
-                metadata: Serialize(new EventInfo { ClrType = @event.GetType().AssemblyQualifiedName })
-
-            )).ToArray();
+        var changes = aggregate.GetChanges().ToArray();
 
         if (!changes.Any()) {
             return;
@@ -53,7 +44,7 @@ public class AggregateStore: IAggregateStore {
 
         var streamName = GetStreamName<T, TId>(aggregate);
 
-        await connection.AppendToStreamAsync(streamName, aggregate.Version, changes);
+        await connection.AppendEvents(streamName, aggregate.Version, changes);
         
         aggregate.ClearChanges();
     }
