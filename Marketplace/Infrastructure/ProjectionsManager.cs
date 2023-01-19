@@ -32,7 +32,7 @@ public class ProjectionsManager {
     public void Stop() => subscription.Stop();
 
     private async Task EventAppeared(EventStoreCatchUpSubscription _, ResolvedEvent resolvedEvent) {
-        // ignore system events
+        // ignore system events, we shouldn't see any if the 'resolveLinkTos' setting is false
         if (resolvedEvent.Event.EventType.StartsWith("$")) {
             return;
         }

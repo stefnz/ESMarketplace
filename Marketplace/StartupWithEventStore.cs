@@ -29,7 +29,12 @@ namespace Marketplace {
         public void ConfigureServices(IServiceCollection services) {
             var esConnection = EventStoreConnection.Create(
                 Configuration["eventStore:connectionString"],
-                ConnectionSettings.Create().KeepReconnecting(),
+                ConnectionSettings.Create()
+                    .FailOnNoServerResponse()
+                    .KeepReconnecting()
+                    .SetOperationTimeoutTo(TimeSpan.FromSeconds(5))
+                    .LimitRetriesForOperationTo(7)
+                ,
                 Environment.ApplicationName);
             
             var store = new AggregateStore(esConnection);

@@ -10,13 +10,13 @@ namespace Marketplace.Api;
 /// The command is passed to the appropriate use case to be handled. 
 /// </summary>
 [Route("/ad")]
-public class ClassifiedAdController: Controller {
+public class ClassifiedAdCommandsApi: Controller {
     private readonly ClassifiedAdsUseCases useCases;
 
-    private static Serilog.ILogger Log = Serilog.Log.ForContext<ClassifiedAdController>();
+    private static Serilog.ILogger Log = Serilog.Log.ForContext<ClassifiedAdCommandsApi>();
     //private readonly ICommandHandler<ClassifiedAdContract.V1.Create> createAdHandler;
 
-    public ClassifiedAdController(ClassifiedAdsUseCases useCases) => this.useCases = useCases;
+    public ClassifiedAdCommandsApi(ClassifiedAdsUseCases useCases) => this.useCases = useCases;
 
     [HttpPost]
     public Task<IActionResult> Post(ClassifiedAdContract.V1.Create request) => HandleRequest(request, useCases.Handle);

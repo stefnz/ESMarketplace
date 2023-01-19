@@ -6,12 +6,12 @@ using ILogger = Serilog.ILogger;
 namespace Marketplace.UserProfiles; 
 
 [Route("/profile")]
-public class UserProfileController : Controller
+public class UserProfileCommandsApi : Controller
 {
     private readonly UserProfileUseCases useCases;
-    private static readonly ILogger Log = Serilog.Log.ForContext<UserProfileController>();
+    private static readonly ILogger Log = Serilog.Log.ForContext<UserProfileCommandsApi>();
 
-    public UserProfileController(UserProfileUseCases useCases) => this.useCases = useCases;
+    public UserProfileCommandsApi(UserProfileUseCases useCases) => this.useCases = useCases;
 
     [HttpPost]
     public Task<IActionResult> Post(UserProfileContract.V1.RegisterUser request)
