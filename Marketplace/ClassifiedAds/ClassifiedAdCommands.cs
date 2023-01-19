@@ -1,4 +1,9 @@
-﻿namespace Marketplace.Contracts;
+﻿// Contract or Command?
+// This contract contains the commands available to interact with the domain.
+//
+// Given this follows Command Query Responsibility Separation (CQRS), should this use the term Commands.
+
+namespace Marketplace.Contracts;
 
 public static class ClassifiedAdContract {
     /// <summary>
